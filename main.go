@@ -16,7 +16,7 @@ func main() {
 	app := fiber.New()
 
 	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString(getTitle())
+		return c.JSON(getTitle())
 	})
 
 	// Make HTTP request
