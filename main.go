@@ -12,8 +12,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-const PORT = process.env.PORT || 5000
-
 func main() {
 	app := fiber.New()
 
