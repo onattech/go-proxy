@@ -27,7 +27,7 @@ func main() {
 	// indexTest()
 
 	port := os.Getenv("PORT")
-	log.Fatal(app.Listen(port))
+	log.Fatal(app.Listen(":" + port))
 }
 
 // <div class="box-borderless">
