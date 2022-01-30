@@ -1,4 +1,4 @@
-module proxy
+module github.com/onattech/go-proxy
 
 go 1.17
 
