@@ -10,10 +10,19 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 func main() {
 	app := fiber.New()
+
+	// CORS
+	app.Use(cors.New(cors.Config{
+		AllowOrigins:     "*",
+		AllowCredentials: true,
+		// AllowHeaders: "*",
+		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
+	}))
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.JSON(getTitle())
