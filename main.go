@@ -5,11 +5,14 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"regexp"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
 )
+
+const PORT = process.env.PORT || 5000
 
 func main() {
 	app := fiber.New()
@@ -23,7 +26,8 @@ func main() {
 	log.Println(alisSatis)
 	// indexTest()
 
-	log.Fatal(app.Listen(":4000"))
+	port := os.Getenv("PORT")
+	log.Fatal(app.Listen(port))
 }
 
 // <div class="box-borderless">
