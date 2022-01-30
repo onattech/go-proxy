@@ -1,1 +1,1 @@
-web: bin/golang-heroku
+web: bundle exec thin start -p $PORT
