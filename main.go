@@ -25,7 +25,7 @@ func main() {
 	}))
 
 	app.Get("/", func(c *fiber.Ctx) error {
-		return c.JSON(getTitle())
+		return c.SendString(getTitle())
 	})
 
 	// Make HTTP request
