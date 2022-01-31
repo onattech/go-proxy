@@ -6,8 +6,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"regexp"
-	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -53,21 +51,22 @@ func getTitle() string {
 
 	// log.Println(pageContent)
 
-	// Find Dollar index
-	dollarIndex := strings.Index(pageContent, "USD (Amerikan Doları)")
-	log.Println(dollarIndex, "!!!!!")
+	// // Find Dollar index
+	// dollarIndex := strings.Index(pageContent, "USD (Amerikan Doları)")
+	// log.Println(dollarIndex, "!!!!!")
 
-	// Find Alis index
-	alisIndex := strings.Index(pageContent[dollarIndex:], "<p>") + dollarIndex
-	log.Println(alisIndex, "!!!!!")
-	chunk := pageContent[alisIndex : alisIndex+800]
+	// // Find Alis index
+	// alisIndex := strings.Index(pageContent[dollarIndex:], "<p>") + dollarIndex
+	// log.Println(alisIndex, "!!!!!")
+	// chunk := pageContent[alisIndex : alisIndex+800]
 
-	// Set Alis index
-	// Create a regular expression to find comments
-	re := regexp.MustCompile(`\d\d,\d\d\d\d`)
-	comments := re.FindAllString(string(chunk), -1)
+	// // Set Alis index
+	// // Create a regular expression to find comments
+	// re := regexp.MustCompile(`\d\d,\d\d\d\d`)
+	// comments := re.FindAllString(string(chunk), -1)
 
-	return comments[0] + " " + comments[1]
+	// return comments[0] + " " + comments[1]
+	return pageContent
 }
 
 func indexTest() {
