@@ -1,14 +1,16 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"regexp"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/onattech/go-proxy/utils"
 )
 
 func main() {
@@ -23,7 +25,8 @@ func main() {
 	}))
 
 	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString(getTitle())
+		// return c.SendString(getTitle())
+		return c.JSON(getTitle())
 	})
 
 	// Make HTTP request
@@ -37,7 +40,12 @@ func main() {
 
 // <div class="box-borderless">
 
-func getTitle() string {
+type ExRate struct {
+	Buy  float64 `json:"buy"`
+	Sell float64 `json:"sell"`
+}
+
+func getTitle() ExRate {
 	// Make HTTP GET request
 	response, err := http.Get("https://www.kuveytturk.com.tr/finans-portali/")
 	if err != nil {
@@ -46,34 +54,29 @@ func getTitle() string {
 	defer response.Body.Close()
 
 	// Get the response body as a string
-	dataInBytes, err := ioutil.ReadAll(response.Body)
+	dataInBytes, _ := ioutil.ReadAll(response.Body)
 	pageContent := string(dataInBytes)
 
 	// log.Println(pageContent)
 
-	// // Find Dollar index
-	// dollarIndex := strings.Index(pageContent, "USD (Amerikan Doları)")
+	// Find Dollar index
+	dollarIndex := strings.Index(pageContent, "USD (Amerikan Doları)")
 	// log.Println(dollarIndex, "!!!!!")
 
-	// // Find Alis index
-	// alisIndex := strings.Index(pageContent[dollarIndex:], "<p>") + dollarIndex
-	// log.Println(alisIndex, "!!!!!")
-	// chunk := pageContent[alisIndex : alisIndex+800]
+	// Find Buy index
+	buyIndex := strings.Index(pageContent[dollarIndex:], "<p>") + dollarIndex
+	chunk := pageContent[buyIndex : buyIndex+800]
+	// log.Println(buyIndex, "!!!!!")
 
-	// // Set Alis index
-	// // Create a regular expression to find comments
-	// re := regexp.MustCompile(`\d\d,\d\d\d\d`)
-	// comments := re.FindAllString(string(chunk), -1)
+	// Set Buy index
+	// Create a regular expression to find buySell
+	re := regexp.MustCompile(`\d\d,\d\d\d\d`)
+	buysell := re.FindAllString(string(chunk), -1)
+	buy := utils.EasyFloat(buysell[0])
+	sell := utils.EasyFloat(buysell[1])
 
-	// return comments[0] + " " + comments[1]
-	return pageContent
-}
+	resp := ExRate{buy, sell}
 
-func indexTest() {
-	x := "Hello"
-	y := x[2:]
-	fmt.Println(y)
-	// s := "12121211122"
-	// first3 := s[0:3]
-	// last3 := s[len(s)-3:]
+	return resp
+
 }
