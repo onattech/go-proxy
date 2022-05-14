@@ -20,32 +20,31 @@ func main() {
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     "*",
 		AllowCredentials: true,
-		// AllowHeaders: "*",
-		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
+		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
 	}))
 
 	app.Get("/", func(c *fiber.Ctx) error {
-		// return c.SendString(getTitle())
-		return c.JSON(getTitle())
+		return c.JSON(getRates())
 	})
 
-	// Make HTTP request
-	alisSatis := getTitle()
-	log.Println(alisSatis)
-	// indexTest()
-
 	port := os.Getenv("PORT")
+	if port == "" {
+		port = "9000"
+	}
 	log.Fatal(app.Listen(":" + port))
 }
 
-// <div class="box-borderless">
-
 type ExRate struct {
+	USD  BuySell
+	Gold BuySell
+}
+
+type BuySell struct {
 	Buy  float64 `json:"buy"`
 	Sell float64 `json:"sell"`
 }
 
-func getTitle() ExRate {
+func getRates() ExRate {
 	// Make HTTP GET request
 	response, err := http.Get("https://www.kuveytturk.com.tr/finans-portali/")
 	if err != nil {
@@ -57,26 +56,36 @@ func getTitle() ExRate {
 	dataInBytes, _ := ioutil.ReadAll(response.Body)
 	pageContent := string(dataInBytes)
 
-	// log.Println(pageContent)
+	buyUSD, sellUSD := getEXRate(pageContent, "USD (Amerikan Doları)")
+	buyGold, sellGold := getEXRate(pageContent, "ALT (Gram Altın)")
 
-	// Find Dollar index
-	dollarIndex := strings.Index(pageContent, "USD (Amerikan Doları)")
-	// log.Println(dollarIndex, "!!!!!")
+	resp := ExRate{
+		USD:  BuySell{buyUSD, sellUSD},
+		Gold: BuySell{buyGold, sellGold},
+	}
 
-	// Find Buy index
-	buyIndex := strings.Index(pageContent[dollarIndex:], "<p>") + dollarIndex
+	resPretty := utils.PrettyStruct(resp)
+	log.Println("Response: ", resPretty)
+
+	return resp
+}
+
+func getEXRate(pageContent string, currencyPhrase string) (float64, float64) {
+	// Find currency index
+	currencyIndex := strings.Index(pageContent, currencyPhrase)
+
+	// Find Buy index and get the chunk buy/sell are in
+	buyIndex := strings.Index(pageContent[currencyIndex:], "<p>") + currencyIndex
 	chunk := pageContent[buyIndex : buyIndex+800]
-	// log.Println(buyIndex, "!!!!!")
 
-	// Set Buy index
 	// Create a regular expression to find buySell
-	re := regexp.MustCompile(`\d\d,\d\d\d\d`)
+	re := regexp.MustCompile(`[0-9]*,[0-9]*`)
+
+	// Extract buy/sell from the chunk
 	buysell := re.FindAllString(string(chunk), -1)
+
 	buy := utils.EasyFloat(buysell[0])
 	sell := utils.EasyFloat(buysell[1])
 
-	resp := ExRate{buy, sell}
-
-	return resp
-
+	return buy, sell
 }

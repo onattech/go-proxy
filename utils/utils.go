@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"encoding/json"
+	"log"
 	"strconv"
 	"strings"
 )
@@ -15,4 +17,13 @@ func EasyFloat(floatLikeString string) float64 {
 	}
 
 	return converted
+}
+
+// Prettifies json
+func PrettyStruct(data interface{}) string {
+	val, err := json.MarshalIndent(data, "", "    ")
+	if err != nil {
+		log.Println(err)
+	}
+	return string(val)
 }
